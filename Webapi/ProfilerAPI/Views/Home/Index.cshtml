@@ -1,0 +1,33 @@
+﻿@using Geeks.ProfilerAPI.Models
+
+@model ICollection<Report>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Method</th>
+            <th>Count</th>
+            <th>Total elapsed time(ms)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var report in Model)
+    {
+        <tr>
+            <td>@report.Key</td>
+            <td>@report.Count</td>
+            <td>@report.ElapsedMilliseconds</td>
+            <td>@Html.ActionLink("Remove", "Remove", "Home", new { area = "", key = report.Key }, null)</td>
+        </tr>
+    }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>@Html.ActionLink("Reset", "Reset", "Home", new { area = "" }, null)</td>
+        </tr>
+    </tfoot>
+</table>
