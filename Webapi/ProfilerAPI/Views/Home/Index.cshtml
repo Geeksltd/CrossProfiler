@@ -1,18 +1,18 @@
-﻿@using Geeks.ProfilerAPI.Models
-
-@model ICollection<Report>
+﻿@model Geeks.ProfilerAPI.ViewModels.Home.IndexViewModel
+    
+<h3>Current command: @Model.Command</h3>
 
 <table class="table table-hover">
     <thead>
-        <tr>
-            <th>Method</th>
-            <th>Count</th>
-            <th>Total elapsed time(ms)</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>Method</th>
+        <th>Count</th>
+        <th>Total elapsed time(ms)</th>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-    @foreach (var report in Model)
+    @foreach (var report in Model.Reports)
     {
         <tr>
             <td>@report.Key</td>
@@ -23,11 +23,11 @@
     }
     </tbody>
     <tfoot>
-        <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>@Html.ActionLink("Reset", "Reset", "Home", new { area = "" }, null)</td>
-        </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>@Html.ActionLink("Reset", "Reset", "Home", new { area = "" }, null)</td>
+    </tr>
     </tfoot>
 </table>

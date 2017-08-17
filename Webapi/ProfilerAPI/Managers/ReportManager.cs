@@ -35,5 +35,10 @@ namespace Geeks.ProfilerAPI.Managers
         {
             return _reports;
         }
+
+        public static void Clear()
+        {
+            _reports.Clear();
+        }
     }
 }
