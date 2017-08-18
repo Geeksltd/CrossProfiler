@@ -1,12 +1,19 @@
 ﻿using System.IO;
+using System.Linq;
 
 namespace Geeks.Profiler
 {
     internal class Cloner
     {
+        private readonly string[] _directroyNameBlackList = { ".vs", ".git" };
+
         public void Clone(string sourceDirName, string destDirName)
         {
             var dir = new DirectoryInfo(sourceDirName);
+            if (_directroyNameBlackList.Contains(dir.Name))
+            {
+                return;
+            }
 
             var dirs = dir.GetDirectories();
             if (!Directory.Exists(destDirName))
