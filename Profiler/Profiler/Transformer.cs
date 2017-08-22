@@ -8,9 +8,9 @@ namespace Geeks.Profiler
 {
     internal class Transformer
     {
-        private string _solutionFile;
-        private Uri _webApi;
-        private string[] _preprocessors;
+        private readonly string _solutionFile;
+        private readonly Uri _webApi;
+        private readonly string[] _preprocessors;
 
         public Transformer(string solutionFile, Uri webApi, string[] preprocessors)
         {
