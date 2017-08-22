@@ -12,7 +12,7 @@ namespace Geeks.Profiler
         public static SyntaxNode GetMethod(MethodInfo methodInfo, MethodInfo originalMethod, ProfilerClass profilerClass)
         {
             var method = methodInfo.Method;
-            
+
             // We might add some constarint calauses to core method but for wapper we keep the original ones
             method = method.WithConstraintClauses(originalMethod.Method.ConstraintClauses);
 
@@ -61,6 +61,7 @@ namespace Geeks.Profiler
 
         private static Tuple<string, string> GetInvocationAndReturnStatement(MethodInfo methodInfo)
         {
+            const string resultVaribaleName = "___result";
             var invocationStatement = string.Empty;
             var returnStatement = string.Empty;
 
@@ -78,13 +79,13 @@ namespace Geeks.Profiler
             }
             else if (methodInfo.IsAsync)
             {
-                invocationStatement = $"var result = await {invocationStatement};";
-                returnStatement = "return result;";
+                invocationStatement = $"var {resultVaribaleName} = await {invocationStatement};";
+                returnStatement = $"return {resultVaribaleName};";
             }
             else
             {
-                invocationStatement = $"var result = {invocationStatement};";
-                returnStatement = "return result;";
+                invocationStatement = $"var {resultVaribaleName} = {invocationStatement};";
+                returnStatement = $"return {resultVaribaleName};";
             }
 
             return Tuple.Create(invocationStatement, returnStatement);
