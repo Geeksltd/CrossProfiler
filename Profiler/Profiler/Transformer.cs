@@ -8,19 +8,35 @@ namespace Geeks.Profiler
 {
     internal class Transformer
     {
-        private readonly string _solutionFile;
-        private readonly Uri _webApi;
+        private const string VsInstallDirEnvironmentVariableKey = "VSINSTALLDIR";
+        private const string VsVersionEnvironmentVariableValue = "15.0";
+        private const string VsVersionEnvironmentVariableKey = "VisualStudioVersion";
         private readonly string[] _preprocessors;
+        private readonly string _solutionFile;
+        private readonly string _vsInstallationDirectory;
+        private readonly Uri _webApi;
 
-        public Transformer(string solutionFile, Uri webApi, string[] preprocessors)
+        public Transformer(string solutionFile, Uri webApi, string[] preprocessors,
+            string vsInstallationDirectory)
         {
             _solutionFile = solutionFile;
             _webApi = webApi;
             _preprocessors = preprocessors;
+            _vsInstallationDirectory = vsInstallationDirectory;
         }
 
         public void Transform()
         {
+            // Compatibility with MSBuild 15
+            var vsInstallDir = Environment.GetEnvironmentVariable(VsInstallDirEnvironmentVariableKey);
+            if (string.IsNullOrEmpty(vsInstallDir))
+            {
+                Environment.SetEnvironmentVariable(VsVersionEnvironmentVariableKey,
+                    VsVersionEnvironmentVariableValue);
+                Environment.SetEnvironmentVariable(VsInstallDirEnvironmentVariableKey,
+                    _vsInstallationDirectory);
+            }
+
             var workspace = MSBuildWorkspace.Create();
             var solution = workspace.OpenSolutionAsync(_solutionFile).Result;
 
@@ -74,7 +90,8 @@ namespace Geeks.Profiler
             return solution;
         }
 
-        private Solution SetProjectParseOptions(Solution solution, Dictionary<ProjectId, CSharpParseOptions> projectsParseOptions)
+        private Solution SetProjectParseOptions(Solution solution,
+            Dictionary<ProjectId, CSharpParseOptions> projectsParseOptions)
         {
             foreach (var projectParseOptions in projectsParseOptions)
             {

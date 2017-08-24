@@ -7,40 +7,30 @@ namespace Geeks.Profiler
 {
     internal class CommandLineOptions
     {
-        [Option('i', "input", Required = true, HelpText = "Input .sln file to be processed, e.g.: C:\\path\\to\\test.sln")]
-        public string InputFile
-        {
-            get;
-            set;
-        }
+        [Option('i', "input", Required = true,
+            HelpText = "Input .sln file to be processed, e.g.: C:\\path\\to\\test.sln")]
+        public string InputFile { get; set; }
 
-        [Option('o', "output", Required = true, HelpText = "Output directory to export new solution, e.g.: C:\\path\\to\\output")]
-        public string OutputDirectory
-        {
-            get;
-            set;
-        }
+        [Option('o', "output", Required = true,
+            HelpText = "Output directory to export new solution, e.g.: C:\\path\\to\\output")]
+        public string OutputDirectory { get; set; }
 
-        [Option('w', "webapi", Required = true, HelpText = "Web API address to report the results, e.g.: http://localhost:9200", MetaValue = "URI")]
-        public string WebApi
-        {
-            get;
-            set;
-        }
+        [Option('w', "webapi", Required = true,
+            HelpText = "Web API address to report the results, e.g.: http://localhost:9200",
+            MetaValue = "URI")]
+        public string WebApi { get; set; }
 
         [OptionArray('p', "preprocessor", HelpText = "List of preprocessors, e.g.: DEBUG TEST WIN")]
-        public string[] Preprocessors
-        {
-            get;
-            set;
-        }
+        public string[] Preprocessors { get; set; }
+
+        [OptionArray('v', "vsdir",
+            HelpText =
+                @"Visual studio installation directory, e.g.: C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise")]
+        public string VsInstallationDir { get; set; } =
+            @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise";
 
         [ParserState]
-        public IParserState LastParserState
-        {
-            get;
-            set;
-        }
+        public IParserState LastParserState { get; set; }
 
         [HelpOption]
         public string GetUsage()

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
@@ -26,7 +25,7 @@ namespace Geeks.Profiler
                 doc = doc.WithSyntaxRoot(docRoot);
 
                 var metadataReference = MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).Assembly.Location);
-                project = doc.Project.AddMetadataReferences(new List<MetadataReference> { metadataReference});
+                project = doc.Project.AddMetadataReferences(new List<MetadataReference> { metadataReference });
                 solution = project.Solution;
             }
 

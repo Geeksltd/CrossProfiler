@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CommandLine;
 
 namespace Geeks.Profiler
 {
@@ -8,7 +9,7 @@ namespace Geeks.Profiler
         public static void Main(string[] args)
         {
             var options = new CommandLineOptions();
-            if (!CommandLine.Parser.Default.ParseArguments(args, options))
+            if (!Parser.Default.ParseArguments(args, options))
             {
                 return;
             }
@@ -25,7 +26,8 @@ namespace Geeks.Profiler
 
             var solutionFileName = Path.GetFileName(options.InputFile);
             var solutionFilePath = Path.Combine(options.OutputDirectory, solutionFileName);
-            var transformer = new Transformer(solutionFilePath, new Uri(options.WebApi), options.Preprocessors);
+            var transformer = new Transformer(solutionFilePath, new Uri(options.WebApi), options.Preprocessors,
+                options.VsInstallationDir);
             transformer.Transform();
         }
     }
