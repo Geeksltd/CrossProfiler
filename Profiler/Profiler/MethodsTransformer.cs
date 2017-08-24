@@ -9,6 +9,7 @@ namespace Geeks.Profiler
     internal class MethodsTransformer
     {
         public const string MethodNameSuffix = "_impl";
+        private readonly HashSet<string> _finishedDocuments = new HashSet<string>();
 
         public Solution TransformMethods(Solution solution, ProfilerClass profilerClass)
         {
@@ -18,6 +19,12 @@ namespace Geeks.Profiler
                 foreach (var documentId in project.DocumentIds)
                 {
                     var doc = project.GetDocument(documentId);
+                    if (_finishedDocuments.Contains(doc.FilePath))
+                    {
+                        continue;
+                    }
+
+                    _finishedDocuments.Add(doc.FilePath);
                     var docRoot = doc.GetSyntaxRootAsync().Result;
 
                     var semanticModel = doc.GetSemanticModelAsync().Result;
@@ -62,7 +69,7 @@ namespace Geeks.Profiler
                         {
                             index += 2;
                         }
-                        
+
                         renamePart = !renamePart;
                     }
 
