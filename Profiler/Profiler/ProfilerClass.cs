@@ -119,8 +119,7 @@ namespace Geeks.Profiler
             const int profilerReportTime = 20000; // every 20 sec
 
             return
-$@"using System;
-using System.Collections.Generic;
+$@"using System.Collections.Generic;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -134,9 +133,9 @@ namespace Geeks.Profiler
         private const string CommandApiUrl = ""{commandApiUrl}"";
         private const string ReportApiUrl = ""{reportApiUrl}"";
         private const int ProfilerReportTime = {profilerReportTime};
-        private static HttpClient _client = new HttpClient();
+        private static readonly HttpClient Client = new HttpClient();
         private static bool _isBackgroundRunning;
-        private static double _constantNoise;
+        private static readonly double ConstantNoise;
 
         public static ThreadLocal<long> TotalMethodCallCount = new ThreadLocal<long>();
 
@@ -156,7 +155,7 @@ namespace Geeks.Profiler
                 ReportMethodRun(ref subMethodCallCount, ref subMethodCallCount, stopwatchTimer.ElapsedTicks, 0);
             }}
             timer.Stop();
-            _constantNoise = (double)timer.ElapsedTicks / 1000000;
+            ConstantNoise = (double)timer.ElapsedTicks / 1000000;
         }}
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -168,7 +167,7 @@ namespace Geeks.Profiler
                 ProfilerReportTask();
             }}
             
-            elapsedTicks = (long)(elapsedTicks - (subMethodCallCount * _constantNoise));
+            elapsedTicks = (long)(elapsedTicks - (subMethodCallCount * ConstantNoise));
 
             time += elapsedTicks;
             count++;
@@ -180,7 +179,7 @@ namespace Geeks.Profiler
             {{
                 try
                 {{
-                    var response = await _client.GetAsync(CommandApiUrl);
+                    var response = await Client.GetAsync(CommandApiUrl);
                     if (response.IsSuccessStatusCode)
                     {{
                         var content = await response.Content.ReadAsStringAsync();
@@ -219,7 +218,7 @@ namespace Geeks.Profiler
                 using (var formData = new MultipartFormDataContent())
                 {{
                     formData.Add(new StringContent(file), ""file"", ""fileName"");
-                    var response = _client.PostAsync(ReportApiUrl, formData).Result;
+                    var response = Client.PostAsync(ReportApiUrl, formData).Result;
                 }}
             }}
             catch
@@ -241,7 +240,7 @@ namespace Geeks.Profiler
 
         private static string GetReportFileLine(string key, long time, long count)
         {{
-            return string.Format(""\""{0}\"",\""{1}\"",\""{2}\"""", key.Replace("","", """"), count, time);
+            return string.Format(""\""{{0}}\"",\""{{1}}\"",\""{{2}}\"""", key.Replace("","", """"), count, time);
         }}
 
         private static IEnumerable<string> GetReportFileContent()
@@ -289,7 +288,6 @@ namespace Geeks.Profiler
         }}
 
         {FieldsPlaceHolder}
-
     }}
 }}";
         }
