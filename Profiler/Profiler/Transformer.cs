@@ -43,8 +43,6 @@ namespace Geeks.Profiler
             var projectParseOptions = GetProjectParseOptions(solution);
             solution = SetProjectParseOptions(solution, _preprocessors);
 
-            var methodsInfo = GatherMethods(solution);
-
             var regionRemover = new RegionRemover();
             solution = regionRemover.RemoveRegions(solution);
 
@@ -52,7 +50,7 @@ namespace Geeks.Profiler
             var profilerClass = new ProfilerClass();
             solution = methodsTransformer.TransformMethods(solution, profilerClass);
 
-            solution = profilerClass.CreateClass(solution, _webApi, methodsInfo);
+            solution = profilerClass.CreateClass(solution, _webApi, methodsTransformer.MethodsInfo);
 
             solution = SetProjectParseOptions(solution, projectParseOptions);
 
@@ -103,31 +101,6 @@ namespace Geeks.Profiler
             }
 
             return solution;
-        }
-
-        private List<ProjectMethodsInfo> GatherMethods(Solution solution)
-        {
-            var projectMethodsInfo = new List<ProjectMethodsInfo>();
-            foreach (var projectId in solution.ProjectIds)
-            {
-                var project = solution.GetProject(projectId);
-                var documentMethodsInfo = new List<DocumentMethodsInfo>();
-                foreach (var documentId in project.DocumentIds)
-                {
-                    var doc = project.GetDocument(documentId);
-                    var docRoot = doc.GetSyntaxRootAsync().Result;
-                    var semanticModel = doc.GetSemanticModelAsync().Result;
-
-                    // Gather methods
-                    var collector = new MethodCollector(semanticModel);
-                    collector.Visit(docRoot);
-
-                    documentMethodsInfo.Add(new DocumentMethodsInfo(documentId, collector.Methods));
-                }
-                projectMethodsInfo.Add(new ProjectMethodsInfo(projectId, documentMethodsInfo));
-            }
-
-            return projectMethodsInfo;
         }
 
         private Solution Save(Solution solution)

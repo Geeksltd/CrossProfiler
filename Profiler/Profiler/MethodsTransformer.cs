@@ -9,35 +9,59 @@ namespace Geeks.Profiler
     internal class MethodsTransformer
     {
         public const string MethodNameSuffix = "_impl";
-        private readonly HashSet<string> _finishedDocuments = new HashSet<string>();
+        public readonly List<ProjectMethodsInfo> MethodsInfo;
+
+        public MethodsTransformer()
+        {
+            MethodsInfo = new List<ProjectMethodsInfo>();
+        }
 
         public Solution TransformMethods(Solution solution, ProfilerClass profilerClass)
         {
             foreach (var projectId in solution.ProjectIds)
             {
+                var projectMethodsInfo = new ProjectMethodsInfo(projectId, new List<DocumentMethodsInfo>());
+                MethodsInfo.Add(projectMethodsInfo);
+
                 var project = solution.GetProject(projectId);
+
                 foreach (var documentId in project.DocumentIds)
                 {
+                    var methodInfos = new List<MethodInfo>();
+
                     var doc = project.GetDocument(documentId);
-                    if (_finishedDocuments.Contains(doc.FilePath))
+
+                    var documentMethodsInfo = MethodsInfo.SelectMany(item => item.DocumentMethodsInfo)
+                        .FirstOrDefault(item => item.FilePath.Equals(doc.FilePath));
+                    if (documentMethodsInfo != null)
                     {
+                        methodInfos.AddRange(documentMethodsInfo.Methods);
+                        documentMethodsInfo = new DocumentMethodsInfo(doc.FilePath, methodInfos);
+                        projectMethodsInfo.DocumentMethodsInfo.Add(documentMethodsInfo);
+
                         continue;
                     }
 
-                    _finishedDocuments.Add(doc.FilePath);
-                    var docRoot = doc.GetSyntaxRootAsync().Result;
+                    documentMethodsInfo = new DocumentMethodsInfo(doc.FilePath, methodInfos);
+                    projectMethodsInfo.DocumentMethodsInfo.Add(documentMethodsInfo);
 
+                    var docRoot = doc.GetSyntaxRootAsync().Result;
                     var semanticModel = doc.GetSemanticModelAsync().Result;
                     var methods = docRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().ToArray();
                     var index = 0;
                     var totalCount = methods.Length;
-                    var renamePart = true;
+                    var renamePhase = true;
                     MethodInfo originalMethod = null;
+
                     while (index < totalCount)
                     {
                         var method = methods.Skip(index).First();
                         var methodSymbol = method.GetMethodSymbol(semanticModel);
                         var methodInfo = method.GetMethodInfo(methodSymbol);
+                        if (renamePhase)
+                        {
+                            methodInfos.Add(methodInfo);
+                        }
 
                         if (!methodInfo.IsEligibleForTransform())
                         {
@@ -45,7 +69,7 @@ namespace Geeks.Profiler
                             continue;
                         }
 
-                        if (renamePart)
+                        if (renamePhase)
                         {
                             // Rename method to xxx_impl
                             originalMethod = methodInfo;
@@ -65,12 +89,12 @@ namespace Geeks.Profiler
                         methods = docRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().ToArray();
                         totalCount = methods.Length;
 
-                        if (!renamePart)
+                        if (!renamePhase)
                         {
                             index += 2;
                         }
 
-                        renamePart = !renamePart;
+                        renamePhase = !renamePhase;
                     }
 
                     docRoot = Formatter.Format(docRoot, solution.Workspace, solution.Workspace.Options);

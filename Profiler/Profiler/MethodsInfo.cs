@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -6,7 +7,7 @@ namespace Geeks.Profiler
 {
     internal class ProjectMethodsInfo
     {
-        public ProjectMethodsInfo(ProjectId projectId, ICollection<DocumentMethodsInfo> documentMethodsInfo)
+        public ProjectMethodsInfo(ProjectId projectId, IList<DocumentMethodsInfo> documentMethodsInfo)
         {
             ProjectId = projectId;
             DocumentMethodsInfo = documentMethodsInfo;
@@ -14,20 +15,20 @@ namespace Geeks.Profiler
 
         public ProjectId ProjectId { get; }
 
-        public ICollection<DocumentMethodsInfo> DocumentMethodsInfo { get; }
+        public IList<DocumentMethodsInfo> DocumentMethodsInfo { get; }
     }
 
     internal class DocumentMethodsInfo
     {
-        public DocumentMethodsInfo(DocumentId documentId, ICollection<MethodInfo> methods)
+        public DocumentMethodsInfo(string filePath, IList<MethodInfo> methods)
         {
-            DocumentId = documentId;
+            FilePath = filePath;
             Methods = methods;
         }
 
-        public DocumentId DocumentId { get; }
+        public string FilePath { get; }
 
-        public ICollection<MethodInfo> Methods { get; }
+        public IList<MethodInfo> Methods { get; }
     }
 
     internal class MethodInfo

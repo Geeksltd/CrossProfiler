@@ -157,7 +157,6 @@
   <ItemGroup>
     <Compile Include="Cloner.cs" />
     <Compile Include="CommandLineOptions.cs" />
-    <Compile Include="MethodCollector.cs" />
     <Compile Include="CoreMethodCreator.cs" />
     <Compile Include="WrapperMethodCreator.cs" />
     <Compile Include="RegionRemover.cs" />
