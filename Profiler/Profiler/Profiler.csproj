@@ -162,7 +162,7 @@
     <Compile Include="WrapperMethodCreator.cs" />
     <Compile Include="RegionRemover.cs" />
     <Compile Include="RegionRemoverSyntaxRewriter.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="MethodDeclarationSyntaxExtensions.cs" />
     <Compile Include="MethodsTransformer.cs" />
     <Compile Include="MethodsInfo.cs" />
     <Compile Include="ProfilerClass.cs" />

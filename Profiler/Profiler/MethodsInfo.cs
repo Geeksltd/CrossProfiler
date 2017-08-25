@@ -6,91 +6,34 @@ namespace Geeks.Profiler
 {
     internal class ProjectMethodsInfo
     {
-        public ProjectId ProjectId
-        {
-            get;
-            private set;
-        }
-
-        public ICollection<DocumentMethodsInfo> DocumentMethodsInfo
-        {
-            get;
-            private set;
-        }
-
         public ProjectMethodsInfo(ProjectId projectId, ICollection<DocumentMethodsInfo> documentMethodsInfo)
         {
             ProjectId = projectId;
             DocumentMethodsInfo = documentMethodsInfo;
         }
+
+        public ProjectId ProjectId { get; }
+
+        public ICollection<DocumentMethodsInfo> DocumentMethodsInfo { get; }
     }
 
     internal class DocumentMethodsInfo
     {
-        public DocumentId DocumentId
-        {
-            get;
-            private set;
-        }
-
-        public ICollection<MethodInfo> Methods
-        {
-            get;
-            private set;
-        }
-
         public DocumentMethodsInfo(DocumentId documentId, ICollection<MethodInfo> methods)
         {
             DocumentId = documentId;
             Methods = methods;
         }
+
+        public DocumentId DocumentId { get; }
+
+        public ICollection<MethodInfo> Methods { get; }
     }
 
     internal class MethodInfo
     {
-        public MethodDeclarationSyntax Method
-        {
-            get;
-            private set;
-        }
-
-        public IMethodSymbol MethodSymbol
-        {
-            get;
-            private set;
-        }
-
-        public string FullName
-        {
-            get;
-            private set;
-        }
-
-        public bool IsAsync
-        {
-            get;
-            private set;
-        }
-
-        public bool ReturnsVoid
-        {
-            get;
-            private set;
-        }
-
-        public bool ReturnsTask
-        {
-            get;
-            private set;
-        }
-
-        public bool IsEnumerable
-        {
-            get;
-            private set;
-        }
-
-        public MethodInfo(MethodDeclarationSyntax method, IMethodSymbol methodSymbol, string fullName, bool isAsync, bool returnsVoid, bool returnsTask, bool isEnumerable)
+        public MethodInfo(MethodDeclarationSyntax method, IMethodSymbol methodSymbol, string fullName, bool isAsync,
+            bool returnsVoid, bool returnsTask, bool isEnumerable)
         {
             Method = method;
             MethodSymbol = methodSymbol;
@@ -99,6 +42,46 @@ namespace Geeks.Profiler
             ReturnsVoid = returnsVoid;
             ReturnsTask = returnsTask;
             IsEnumerable = isEnumerable;
+        }
+
+        public MethodDeclarationSyntax Method { get; }
+
+        public IMethodSymbol MethodSymbol { get; }
+
+        public string FullName { get; }
+
+        public bool IsAsync { get; }
+
+        public bool ReturnsVoid { get; }
+
+        public bool ReturnsTask { get; }
+
+        public bool IsEnumerable { get; }
+
+        public bool IsEligibleForTransform()
+        {
+            if (MethodSymbol.IsAbstract)
+            {
+                return false;
+            }
+
+            if (MethodSymbol.IsExtern)
+            {
+                return false;
+            }
+
+            // Is partial and its the definition part
+            if (MethodSymbol.PartialDefinitionPart == null && MethodSymbol.PartialImplementationPart != null)
+            {
+                return false;
+            }
+
+            if (Method.Body == null && Method.ExpressionBody == null)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

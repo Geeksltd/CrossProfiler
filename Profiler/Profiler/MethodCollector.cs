@@ -25,7 +25,7 @@ namespace Geeks.Profiler
             {
                 return;
             }
-                
+
             Methods.Add(methodInfo);
         }
     }

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Geeks.Profiler
 {
-    internal static class Utils
+    internal static class MethodDeclarationSyntaxExtensions
     {
         public static IMethodSymbol GetMethodSymbol(this MethodDeclarationSyntax method, SemanticModel semanticModel)
         {
@@ -52,42 +52,6 @@ namespace Geeks.Profiler
             }
 
             return new MethodInfo(method, methodSymbol, fullName, methodSymbol.IsAsync, isVoid, isTask, isEnumerable);
-        }
-
-        public static bool IsEligibleForTransform(this MethodInfo methodInfo)
-        {
-            if (methodInfo.MethodSymbol.IsAbstract)
-            {
-                return false;
-            }
-
-            if (methodInfo.MethodSymbol.IsExtern)
-            {
-                return false;
-            }
-
-            // Is partial and its the definition part
-            if (methodInfo.MethodSymbol.PartialDefinitionPart == null && methodInfo.MethodSymbol.PartialImplementationPart != null)
-            {
-                return false;
-            }
-
-            if (methodInfo.Method.Body == null && methodInfo.Method.ExpressionBody == null)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static string ReplaceLastOccurrence(this string source, string find, string replace)
-        {
-            var place = source.LastIndexOf(find);
-
-            if (place == -1)
-                return source;
-
-            return source.Remove(place, find.Length).Insert(place, replace);
         }
     }
 }
