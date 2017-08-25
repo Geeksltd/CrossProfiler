@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Formatting;
@@ -23,9 +24,9 @@ namespace Geeks.Profiler
                 var docRoot = doc.GetSyntaxRootAsync().Result;
                 docRoot = Formatter.Format(docRoot, solution.Workspace, solution.Workspace.Options);
                 doc = doc.WithSyntaxRoot(docRoot);
+                project = doc.Project;
 
-                var metadataReference = MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).Assembly.Location);
-                project = doc.Project.AddMetadataReferences(new List<MetadataReference> { metadataReference });
+                project = AddMetadataReferences(project);
                 solution = project.Solution;
             }
 
@@ -63,6 +64,27 @@ namespace Geeks.Profiler
             return source.Replace(FieldsPlaceHolder, fieldsBuilder.ToString())
                 .Replace(GetReportFileContentMethodBodyPlaceHolder, getReportFileContentMethodBody)
                 .Replace(ClearMethodBodyPlaceHolder, clearBody.ToString());
+        }
+
+        private Project AddMetadataReferences(Project project)
+        {
+            var hasTheReference = false;
+            foreach (var reference in project.MetadataReferences)
+            {
+                var fileInfo = new FileInfo(reference.Display);
+                if (string.Equals(fileInfo.Name, "System.Net.Http.dll", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasTheReference = true;
+                    break;
+                }
+            }
+            if (!hasTheReference)
+            {
+                var metadataReference = MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpClient).Assembly.Location);
+                project = project.AddMetadataReferences(new List<MetadataReference> { metadataReference });
+            }
+
+            return project;
         }
 
         public string GetProfilerCallStatements(MethodInfo methodInfo, string originalMethodCallStatement)
