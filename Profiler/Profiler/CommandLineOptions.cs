@@ -23,12 +23,6 @@ namespace Geeks.Profiler
         [OptionArray('p', "preprocessor", HelpText = "List of preprocessors, e.g.: DEBUG TEST WIN")]
         public string[] Preprocessors { get; set; }
 
-        [OptionArray('v', "vsdir",
-            HelpText =
-                @"Visual studio installation directory, e.g.: C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise")]
-        public string VsInstallationDir { get; set; } =
-            @"C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise";
-
         [ParserState]
         public IParserState LastParserState { get; set; }
 

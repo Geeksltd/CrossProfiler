@@ -26,8 +26,7 @@ namespace Geeks.Profiler
 
             var solutionFileName = Path.GetFileName(options.InputFile);
             var solutionFilePath = Path.Combine(options.OutputDirectory, solutionFileName);
-            var transformer = new Transformer(solutionFilePath, new Uri(options.WebApi), options.Preprocessors,
-                options.VsInstallationDir);
+            var transformer = new Transformer(solutionFilePath, new Uri(options.WebApi), options.Preprocessors);
             transformer.Transform();
         }
     }

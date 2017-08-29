@@ -10,14 +10,14 @@ namespace Geeks.Profiler
     {
         public static SyntaxNode CreateMethod(MethodInfo methodInfo, string methodNameSuffix)
         {
-            // If a generic method is overriding and its base has constraint clauses
-            // We need to copy constraint clauses from base to core version
+            // If a generic method is overridden and its base has constraint clauses
+            // We need to copy constraint clauses from base
             var method = FixConstraintClauses(methodInfo);
 
             // We place this method first so we move the trailing trivia to wrapper method
             method = method.WithTrailingTrivia(null);
 
-            // Remove all modifiers but these modifiers
+            // Remove all modifiers but these ones
             var modifiers = new SyntaxTokenList();
             foreach (var modifier in method.Modifiers)
             {
@@ -45,6 +45,7 @@ namespace Geeks.Profiler
 
         private static MethodDeclarationSyntax FixConstraintClauses(MethodInfo methodInfo)
         {
+            // I think this a bug in roslyn sometimes OverriddenMethod property is null
             if (methodInfo.MethodSymbol.IsOverride && methodInfo.MethodSymbol.IsGenericMethod)
             {
                 var currentMethod = methodInfo.MethodSymbol;
