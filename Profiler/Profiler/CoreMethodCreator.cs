@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -56,14 +57,40 @@ namespace Geeks.Profiler
                 }
 
                 SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses;
-                foreach (var overriddenMethodRefrence in overriddenMethodRefrences)
+                // If the base method is declared here we have the syntax
+                // otherwise it's probably in an external library and we have to
+                // build the constraints ourselves
+                if (overriddenMethodRefrences.Any())
                 {
-                    var overriddenMethod = overriddenMethodRefrence.GetSyntax() as MethodDeclarationSyntax;
-
-                    if (overriddenMethod.ConstraintClauses.Any())
+                    foreach (var overriddenMethodRefrence in overriddenMethodRefrences)
                     {
-                        constraintClauses = overriddenMethod.ConstraintClauses;
-                        break;
+                        var overriddenMethod = overriddenMethodRefrence.GetSyntax() as MethodDeclarationSyntax;
+
+                        if (overriddenMethod.ConstraintClauses.Any())
+                        {
+                            constraintClauses = overriddenMethod.ConstraintClauses;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var overriddenMethodTypeParameter in methodInfo.MethodSymbol.OverriddenMethod.TypeParameters)
+                    {
+                        foreach (var constraintType in overriddenMethodTypeParameter.ConstraintTypes)
+                        {
+                            var constraints = new SeparatedSyntaxList<TypeParameterConstraintSyntax>();
+                            constraints = constraints.Add(SyntaxFactory.TypeConstraint(SyntaxFactory.ParseTypeName(
+                                $"{constraintType.ContainingNamespace}.{constraintType.Name}")));
+
+                            var typeParameterConstraintClauseSyntax = SyntaxFactory.TypeParameterConstraintClause(
+                                SyntaxFactory.Token(SyntaxKind.WhereKeyword),
+                                SyntaxFactory.IdentifierName(overriddenMethodTypeParameter.Name),
+                                SyntaxFactory.Token(SyntaxKind.ColonToken),
+                                constraints);
+
+                            constraintClauses = constraintClauses.Add(typeParameterConstraintClauseSyntax);
+                        }
                     }
                 }
 
